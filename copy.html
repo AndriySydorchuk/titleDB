@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OEM Parts Database</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #a0e8ff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #0078d7;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #005bb5;
+        }
+        .record {
+            background: #f9f9f9;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+        }
+        .copy-button {
+            background-color: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .copy-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title">
+        </div>
+        <button onclick="addPart()">Add Part</button>
+        <button onclick="exportParts()">Export Data</button>
+        <button onclick="importParts()">Import Data</button>
+
+        <h2>Contacts</h2>
+        <div class="form-group">
+            <label for="search">Find part by value</label>
+            <input type="text" id="search" oninput="searchParts()">
+        </div>
+        <div id="records"></div>
+        <input type="file" id="fileInput" style="display: none;" onchange="handleFileUpload(event)">
+    </div>
+
+    <script>
+        // Load parts from localStorage
+        let parts = JSON.parse(localStorage.getItem('parts')) || [];
+
+        function saveParts() {
+            localStorage.setItem('parts', JSON.stringify(parts));
+        }
+
+        function addPart() {
+            const title = document.getElementById('title').value;
+
+            if (!title) {
+                alert('Please fill in the title.');
+                return;
+            }
+
+            const part = { title };
+            parts.push(part);
+            saveParts();
+            renderParts();
+
+            document.getElementById('title').value = '';
+        }
+
+        function renderParts() {
+            const recordsDiv = document.getElementById('records');
+            recordsDiv.innerHTML = '';
+
+            parts.forEach((part) => {
+                const recordDiv = document.createElement('div');
+                recordDiv.className = 'record';
+                recordDiv.innerHTML = `
+                    <button class="copy-button" onclick="copyToClipboard('${part.title}')">Copy</button>
+                    <span>${part.title}</span>
+                `;
+                recordsDiv.appendChild(recordDiv);
+            });
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).catch(err => {
+                alert('Failed to copy: ' + err);
+            });
+        }
+
+        function searchParts() {
+            const searchValue = document.getElementById('search').value.toLowerCase().trim();
+            const searchWords = searchValue.split(/\s+/); // Split by spaces
+
+            const filteredParts = parts.filter(part => {
+                const titleWords = part.title.toLowerCase().split(/\s+/); // Split title into words
+                return searchWords.every(word => titleWords.some(titleWord => titleWord.includes(word)));
+            });
+
+            const recordsDiv = document.getElementById('records');
+            recordsDiv.innerHTML = '';
+
+            filteredParts.forEach((part) => {
+                const recordDiv = document.createElement('div');
+                recordDiv.className = 'record';
+                recordDiv.innerHTML = `
+                    <button class="copy-button" onclick="copyToClipboard('${part.title}')">Copy</button>
+                    <span>${part.title}</span>
+                `;
+                recordsDiv.appendChild(recordDiv);
+            });
+        }
+
+        function exportParts() {
+            const dataStr = JSON.stringify(parts, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'parts.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importParts() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedParts = JSON.parse(e.target.result);
+                    if (Array.isArray(importedParts)) {
+                        parts = importedParts;
+                        saveParts();
+                        renderParts();
+                    } else {
+                        alert('Invalid file format.');
+                    }
+                } catch (error) {
+                    alert('Error reading file.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Render parts on page load
+        renderParts();
+    </script>
+</body>
+</html>

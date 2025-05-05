@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OEM Parts Database</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="sidebar">
+        <h3>Fixed</h3>
+        <div class="record">
+            <span>FRONT</span>
+        </div>
+        <div class="record">
+            <span>REAR</span>
+        </div>
+        <div class="record">
+            <span>RIGHT</span>
+        </div>
+        <div class="record">
+            <span>LEFT</span>
+        </div>
+        <div class="record">
+            <span>FRONT RIGHT</span>
+        </div>
+        <div class="record">
+            <span>FRONT LEFT</span>
+        </div>
+        <div class="record">
+            <span>REAR LEFT</span>
+        </div>
+        <div class="record">
+            <span>REAR RIGHT</span>
+        </div>
+        <div class="record">
+            <span>LEFT DRIVER SIDE</span>
+        </div>
+        <div class="record">
+            <span>RIGHT PASSENGER SIDE</span>
+        </div>
+        <div class="record">
+            <span>2ND ROW</span>
+        </div>
+        <div class="record">
+            <span>3RD ROW</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title">
+        </div>
+        <button onclick="addPart()">Add Part</button>
+        <button onclick="exportParts()">Export Data</button>
+        <button onclick="importParts()">Import Data</button>
+
+        <h2>Contacts</h2>
+        <div class="form-group">
+            <label for="search">Find part by value</label>
+            <input type="text" id="search" oninput="searchParts()">
+        </div>
+        <div id="records"></div>
+        <input type="file" id="fileInput" style="display: none;" onchange="handleFileUpload(event)">
+    </div>
+
+    <div id="copy-toast" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+     background: #333; color: #fff; padding: 10px 20px; border-radius: 5px; display: none; z-index: 1000;">
+    Copied to clipboard!
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
